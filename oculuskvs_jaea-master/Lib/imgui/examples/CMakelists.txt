@@ -1,0 +1,47 @@
+cmake_minimum_required(VERSION 2.8)
+#project(OculusKVS_JAEA/Lib/imgui/examples)
+
+FIND_PACKAGE(OpenGL REQUIRED)
+#FIND_PACKAGE(GLEW REQUIRED)
+
+#set(GL3W_DIR ./libs/gl3w)
+
+include(../../../CMakeLibs_GL.conf)
+
+set(INCLUDE_DIR
+  ${OPENGL_INCLUDE_DIR}
+  ${GLEW_INCLUDE_DIR}
+  ${GLUT_INCLUDE_DIR}
+  .
+  ..
+)
+set(LIBRARY_DIR
+  ${GLEW_LIB_DIR}
+  ${GLUT_LIB_DIR}
+)
+set(LIBRARIES
+  ${OPENGL_LIBRARIES}
+  ${GLEW_LIBRARIES}
+  ${GLUT_LIBRARIES}
+  )
+
+set(SRC_FILES_RENDERER_OGL3 imgui_impl_opengl3.cpp)
+set(SRC_FILES_RENDERER_OGL2 imgui_impl_opengl2.cpp)
+
+set(SRC_FILES_PLATFORM_WIN32 imgui_impl_win32.cpp)
+set(SRC_FILES_PLATFORM_GLUT imgui_impl_glut.cpp)
+
+set(CMAKE_CXX_FLAGS_RELEASE "$(CMAKE_CXX_FLAGS_RELEASE) /MT")
+set(CMAKE_CXX_FLAGS_DEBUG "$(CMAKE_CXX_FLAGS_DEBUG) /MTd")
+
+#add_subdirectory(libs)
+
+add_definitions(-DIMGUI_IMPL_OPENGL_LOADER_GLEW)
+
+include_directories(${INCLUDE_DIR})
+link_directories(${LIBRARY_DIR})
+#add_library(libimgui_impl_opengl3 STATIC ${SRC_FILES_RENDERER_OGL3})
+add_library(libimgui_impl_opengl2 STATIC ${SRC_FILES_RENDERER_OGL2})
+#add_library(libimgui_impl_win32 STATIC ${SRC_FILES_PLATFORM_WIN32})
+add_library(libimgui_impl_glut STATIC ${SRC_FILES_PLATFORM_GLUT})
+

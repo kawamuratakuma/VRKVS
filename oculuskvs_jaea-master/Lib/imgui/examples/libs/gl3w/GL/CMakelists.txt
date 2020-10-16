@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 2.8)
+#project(HUDTest02/imgui/examples/libs/gl3w/GL)
+
+FIND_PACKAGE(OpenGL REQUIRED)
+FIND_PACKAGE(GLEW REQUIRED)
+
+set(INCLUDE_DIR
+  ${OPENGL_INCLUDE_DIR}
+  ${GLEW_INCLUDE_DIR}
+  ..
+  .
+)
+set(LIBRARY_DIR
+  ${GLEW_LIB_DIR}
+)
+set(LIBRARIES
+  ${OPENGL_LIBRARIES}
+  ${GLEW_LIBRARIES}
+  )
+
+set(SRC_FILES
+    gl3w.c
+)
+set(CMAKE_CXX_FLAGS_RELEASE "$(CMAKE_CXX_FLAGS_RELEASE) /MT")
+set(CMAKE_CXX_FLAGS_DEBUG "$(CMAKE_CXX_FLAGS_DEBUG) /MTd")
+set(CMAKE_C_FLAGS_RELEASE "$(CMAKE_C_FLAGS_RELEASE) /MT")
+set(CMAKE_C_FLAGS_DEBUG "$(CMAKE_C_FLAGS_DEBUG) /MTd")
+
+include_directories(${INCLUDE_DIR})
+link_directories(${LIBRARY_DIR})
+add_library(libgl3w STATIC ${SRC_FILES})
+

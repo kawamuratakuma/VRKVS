@@ -1,0 +1,39 @@
+#
+# library path definotion file for kvsmake
+#
+# You MUST define following variables in this file:
+#   
+#   - OCULUS_SDK_INC_DIR = $(OCULUS_SDK_DIR)/Include
+#   - OCULUS_SDK_LIB_DIR = $(OCULUS_SDK_DIR)/Lib\Windows\Win32\Release\VS2017
+#   - OCULUS_SDK_LIBRARY = LibOVR.lib
+#
+
+OCULUS_SDK_DIR = C:/XXX/ovr_sdk_win_1.30.0_public/LibOVR
+OCULUS_SDK_INC_DIR = $(OCULUS_SDK_DIR)/Include
+OCULUS_SDK_LIB_DIR = $(OCULUS_SDK_DIR)/Lib\Windows\x64\Release\VS2017
+OCULUS_SDK_LIBRARY = LibOVR.lib
+
+
+# FBX SDK
+FBX_SDK_DIR ="C:\Program Files\Autodesk\FBX\FBX SDK\2019.5"
+FBX_SDK_INC_DIR = $(FBX_SDK_DIR)/include
+FBX_SDK_LIB_DIR = $(FBX_SDK_DIR)/lib/vs2017/x64/release
+FBX_SDK_LIBS = libfbxsdk-mt.lib libxml2-mt.lib zlib-mt.lib 
+
+
+# Assimp
+ASSIMP_DIR =C:\XXX\assimp-5.0.0
+ASSIMP_INC_DIR = $(ASSIMP_DIR)/include /I$(ASSIMP_DIR)/BINARIES/x64/include
+ASSIMP_LIB_DIR = $(ASSIMP_DIR)/BINARIES/x64/code/Release
+ASSIMP_LIBS = assimp-vc141-mt.lib 
+
+
+# CGFormatExt4KVS
+CGFORMAT_EXT4KVS_DIR = C:/XXX/CGFormatExt4KVS/Lib
+CGFORMAT_EXT4KVS_INC_DIR = $(CGFORMAT_EXT4KVS_DIR)
+CGFORMAT_EXT4KVS_LIB_DIR = $(CGFORMAT_EXT4KVS_DIR)
+CGFORMAT_EXT4KVS_LIBRARY = LibCGFormatExt4KVS.lib advapi32.lib 
+
+
+LDFLAGS = $(LDFLAGS) /DEBUG
+

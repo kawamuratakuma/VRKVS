@@ -1,0 +1,25 @@
+#
+# Template file of CMakeLibs_GL.conf
+#
+# CMakeLibs_GL.conf is configuration file for cmake
+# to set variables for GLUT and GLEW libraires.
+#
+# CMakeLibs_GL.conf must contains definitions of following variables:
+#
+#   - GLUT_INCLUDE_DIR : header file directory for "GL/glut.h"
+#   - GLUT_LIBRARY_DIR : library file directory for "freeglut.lib" or "glut32.lib".
+#   - GLUT_LIBRARIES   : library file name (freeglut.lib or glut32.lib)
+#
+#   - GLEW_INCLUDE_DIR : header file directory for "GL/glew.h"
+#   - GLEW_LIBRARY_DIR : library file directory for "glew32.lib".
+#   - GLEW_LIBRARIES   : library file name (glew32.lib)
+
+set(GLUT_DIR         $ENV{KVS_GLUT_DIR})
+set(GLUT_INCLUDE_DIR ${GLUT_DIR}/include)
+set(GLUT_LIBRARY_DIR ${GLUT_DIR}/lib)
+set(GLUT_LIBRARIES   glut32.lib)
+
+set(GLEW_DIR         $ENV{KVS_GLEW_DIR})
+set(GLEW_INCLUDE_DIR ${GLEW_DIR}/include)
+set(GLEW_LIBRARY_DIR ${GLEW_DIR}/lib)
+set(GLEW_LIBRARIES   glew32.lib)

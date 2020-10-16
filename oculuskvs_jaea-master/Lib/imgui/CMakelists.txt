@@ -1,0 +1,45 @@
+cmake_minimum_required(VERSION 2.8)
+#project(OculusKVS_JAEA/Lib/imgui)
+
+FIND_PACKAGE(OpenGL REQUIRED)
+
+# set following variables in this file:
+#   - GLUT_INCLUDE_DIR
+#   - GLUT_LIBRARY_DIR
+#   - GLUT_LIBRARIES
+#   - GLEW_INCLUDE_DIR
+#   - GLEW_LIBRARY_DIR
+#   - GLEW_LIBRARIES
+include(../../CMakeLibs_GL.conf)
+
+#set(GLUT_DIR C:/Users/insight/Documents/lib/freeglut)
+#set(GLUT_INCLUDE_DIR ${GLUT_DIR}/include)
+#set(GLUT_LIBRARY_DIR ${GLUT_DIR}/lib)
+
+set(INCLUDE_DIR
+  ${OPENGL_INCLUDE_DIR}
+  ${GLUT_INCLUDE_DIR}
+  .
+)
+set(LIBRARY_DIR
+  ${GLUT_LIBRARY_DIR}
+)
+set(LIBRARIES
+  ${OPENGL_LIBRARIES}
+  ${GLUT_LIBRARIES}
+  )
+
+set(SRC_FILES
+    imgui_draw.cpp
+    imgui_widgets.cpp
+    imgui.cpp
+)
+set(CMAKE_CXX_FLAGS_RELEASE "$(CMAKE_CXX_FLAGS_RELEASE) /MT")
+set(CMAKE_CXX_FLAGS_DEBUG "$(CMAKE_CXX_FLAGS_RELEASE) /MT")
+
+add_subdirectory(examples)
+
+include_directories(${INCLUDE_DIR})
+link_directories(${LIBRARY_DIR})
+add_library(libimgui STATIC ${SRC_FILES})
+
