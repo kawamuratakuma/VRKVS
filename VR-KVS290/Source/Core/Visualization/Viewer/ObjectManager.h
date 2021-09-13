@@ -84,6 +84,7 @@ public:
     void rotate( const kvs::Mat3& rotation );
     void translate( const kvs::Vec3& translation );
     void scale( const kvs::Vec3& scaling );
+    void handscontroller( const kvs::Xform x);
 
     void updateExternalCoords();
 

@@ -35,9 +35,3 @@ Debug
 /Build
 
 *.stash
-
-/.settings/
-.classpath
-.project
-.cproject
-

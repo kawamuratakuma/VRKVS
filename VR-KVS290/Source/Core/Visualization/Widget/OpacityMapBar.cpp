@@ -116,10 +116,10 @@ void OpacityMapBar::paintEvent()
     {
         const int w = ( m_orientation == OpacityMapBar::Vertical ) ? value_width + 5 : 0;
         const int h = ( m_orientation == OpacityMapBar::Vertical ) ? 0 : value_height;
-        const int x = m_x + BaseClass::margin();
-        const int y = m_y + BaseClass::margin() + caption_height;
-        const int width = m_width - BaseClass::margin() * 2 - w;
-        const int height = m_height - BaseClass::margin() * 2 - caption_height - h;
+        const int x = BaseClass::x0() + BaseClass::margin();
+        const int y = BaseClass::y0() + BaseClass::margin() + caption_height;
+        const int width = BaseClass::width() - BaseClass::margin() * 2 - w;
+        const int height = BaseClass::height() - BaseClass::margin() * 2 - caption_height - h;
         this->draw_opacity_bar( x, y, width, height );
         this->draw_border( x, y, width, height );
     }
@@ -127,8 +127,8 @@ void OpacityMapBar::paintEvent()
     // Draw the caption.
     if ( m_caption.size() != 0 )
     {
-        const int x = m_x + BaseClass::margin();
-        const int y = m_y + BaseClass::margin();
+        const int x = BaseClass::x0() + BaseClass::margin();
+        const int y = BaseClass::y0() + BaseClass::margin();
         const kvs::Vec2 p( x, y + text_height );
         BaseClass::painter().drawText( p, m_caption );
     }
@@ -141,7 +141,7 @@ void OpacityMapBar::paintEvent()
         case OpacityMapBar::Horizontal:
         {
             {
-                const int x = m_x + BaseClass::margin();
+                const int x = BaseClass::x0() + BaseClass::margin();
                 const int y = BaseClass::y1() - BaseClass::margin() - text_height;
                 const kvs::Vec2 p( x, y + text_height );
                 BaseClass::painter().drawText( p, min_value );
@@ -158,7 +158,7 @@ void OpacityMapBar::paintEvent()
         {
             {
                 const int x = BaseClass::x1() - BaseClass::margin() - value_width;
-                const int y = m_y + BaseClass::margin() + caption_height;
+                const int y = BaseClass::y0() + BaseClass::margin() + caption_height;
                 const kvs::Vec2 p( x, y + text_height );
                 BaseClass::painter().drawText( p, min_value );
             }
@@ -326,6 +326,7 @@ void OpacityMapBar::create_checkerboard()
 /*===========================================================================*/
 void OpacityMapBar::draw_opacity_bar( const int x, const int y, const int width, const int height )
 {
+    const float dpr = screen()->devicePixelRatio();
     const int x0 = x;
     const int x1 = x + width;
     const int y0 = y;
@@ -345,10 +346,10 @@ void OpacityMapBar::draw_opacity_bar( const int x, const int y, const int width,
 
         kvs::Texture::Binder binder( m_checkerboard );
         kvs::OpenGL::Begin( GL_QUADS );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 1.0f ), kvs::Vec2( x0, y0 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2(    w, 1.0f ), kvs::Vec2( x1, y0 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2(    w,    h ), kvs::Vec2( x1, y1 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f,    h ), kvs::Vec2( x0, y1 ) );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 1.0f ), kvs::Vec2( x0, y0 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2(    w, 1.0f ), kvs::Vec2( x1, y0 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2(    w,    h ), kvs::Vec2( x1, y1 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f,    h ), kvs::Vec2( x0, y1 ) * dpr );
         kvs::OpenGL::End();
     }
 
@@ -361,20 +362,20 @@ void OpacityMapBar::draw_opacity_bar( const int x, const int y, const int width,
     case OpacityMapBar::Horizontal:
     {
         kvs::OpenGL::Begin( GL_QUADS );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 1.0f ), kvs::Vec2( x0, y0 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 1.0f ), kvs::Vec2( x1, y0 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 0.0f ), kvs::Vec2( x1, y1 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 0.0f ), kvs::Vec2( x0, y1 ) );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 1.0f ), kvs::Vec2( x0, y0 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 1.0f ), kvs::Vec2( x1, y0 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 0.0f ), kvs::Vec2( x1, y1 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 0.0f ), kvs::Vec2( x0, y1 ) * dpr );
         kvs::OpenGL::End();
         break;
     }
     case OpacityMapBar::Vertical:
     {
         kvs::OpenGL::Begin( GL_QUADS );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 0.0f ), kvs::Vec2( x0, y0 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 1.0f ), kvs::Vec2( x1, y0 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 1.0f ), kvs::Vec2( x1, y1 ) );
-        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 0.0f ), kvs::Vec2( x0, y1 ) );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 0.0f ), kvs::Vec2( x0, y0 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 0.0f, 1.0f ), kvs::Vec2( x1, y0 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 1.0f ), kvs::Vec2( x1, y1 ) * dpr );
+        kvs::OpenGL::TexCoordVertex( kvs::Vec2( 1.0f, 0.0f ), kvs::Vec2( x0, y1 ) * dpr );
         kvs::OpenGL::End();
         break;
     }
@@ -394,7 +395,7 @@ void OpacityMapBar::draw_opacity_bar( const int x, const int y, const int width,
 void OpacityMapBar::draw_border( const int x, const int y, const int width, const int height )
 {
     kvs::NanoVG* engine = BaseClass::painter().device()->renderEngine();
-    engine->beginFrame( screen()->width(), screen()->height() );
+    engine->beginFrame( screen()->width(), screen()->height(), screen()->devicePixelRatio() );
 
     engine->beginPath();
     engine->setStrokeWidth( m_border_width );

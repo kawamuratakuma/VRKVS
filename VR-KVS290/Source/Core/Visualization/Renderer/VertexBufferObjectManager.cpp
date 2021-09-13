@@ -122,39 +122,34 @@ void VertexBufferObjectManager::create()
             m_vbo.bind();
             if ( m_vertex_array.size > 0 )
             {
-                m_vbo.load( m_vertex_array.size, m_vertex_array.pointer, offset );
                 m_vertex_array.offset = offset;
-                offset += m_vertex_array.size;
+                offset += m_vbo.load(m_vertex_array.size, m_vertex_array.pointer, m_vertex_array.offset  );
             }
 
             if ( m_color_array.size > 0 )
             {
-                m_vbo.load( m_color_array.size, m_color_array.pointer, offset );
                 m_color_array.offset = offset;
-                offset += m_color_array.size;
+                offset += m_vbo.load( m_color_array.size, m_color_array.pointer,  m_color_array.offset );
             }
 
             if ( m_normal_array.size > 0 )
             {
-                m_vbo.load( m_normal_array.size, m_normal_array.pointer, offset );
                 m_normal_array.offset = offset;
-                offset += m_normal_array.size;
+                offset += m_vbo.load( m_normal_array.size, m_normal_array.pointer, m_normal_array.offset );
             }
 
             if ( m_tex_coord_array.size > 0 )
             {
-                m_vbo.load( m_tex_coord_array.size, m_tex_coord_array.pointer, offset );
                 m_tex_coord_array.offset = offset;
-                offset += m_tex_coord_array.size;
+                offset +=  m_vbo.load( m_tex_coord_array.size, m_tex_coord_array.pointer, m_tex_coord_array.offset );
             }
 
             for ( size_t i = 0; i < m_vertex_attrib_arrays.size(); i++ )
             {
                 if ( m_vertex_attrib_arrays[i].size > 0 )
                 {
-                    m_vbo.load( m_vertex_attrib_arrays[i].size, m_vertex_attrib_arrays[i].pointer, offset );
                     m_vertex_attrib_arrays[i].offset = offset;
-                    offset += m_vertex_attrib_arrays[i].size;
+                    offset +=  m_vbo.load( m_vertex_attrib_arrays[i].size, m_vertex_attrib_arrays[i].pointer, m_vertex_attrib_arrays[i].offset );
                 }
             }
 
@@ -235,13 +230,13 @@ void VertexBufferObjectManager::drawElements( GLenum mode, const kvs::ValueArray
 size_t VertexBufferObjectManager::vertex_buffer_object_size() const
 {
     size_t vbo_size = 0;
-    vbo_size += m_vertex_array.size;
-    vbo_size += m_color_array.size;
-    vbo_size += m_normal_array.size;
-    vbo_size += m_tex_coord_array.size;
+    vbo_size += BufferObject::paddedBufferSize(m_vertex_array.size);
+    vbo_size += BufferObject::paddedBufferSize(m_color_array.size);
+    vbo_size += BufferObject::paddedBufferSize(m_normal_array.size);
+    vbo_size += BufferObject::paddedBufferSize(m_tex_coord_array.size);
     for ( size_t i = 0; i < m_vertex_attrib_arrays.size(); i++ )
     {
-        vbo_size += m_vertex_attrib_arrays[i].size;
+        vbo_size += BufferObject::paddedBufferSize(m_vertex_attrib_arrays[i].size);
     }
     return vbo_size;
 }

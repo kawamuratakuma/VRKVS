@@ -16,6 +16,7 @@
 
 #include <kvs/Mouse>
 #include <kvs/ScreenBase>
+#include <kvs/CubicImage>
 
 
 namespace kvs
@@ -95,6 +96,8 @@ public:
     void updateGLViewingMatrix() const;
     void updateGLProjectionMatrix() const;
     void updateGLLightParameters() const;
+
+    kvs::CubicImage cubemap();
 
     void setEnabledCollisionDetection( bool enable );
     void enableCollisionDetection() { this->setEnabledCollisionDetection( true ); }

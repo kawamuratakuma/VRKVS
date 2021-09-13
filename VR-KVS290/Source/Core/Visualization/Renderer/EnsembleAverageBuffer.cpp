@@ -15,7 +15,6 @@
 #include "EnsembleAverageBuffer.h"
 #include <kvs/OpenGL>
 
-
 namespace
 {
 
@@ -48,9 +47,9 @@ namespace kvs
 
 /*===========================================================================*/
 /**
- *  @brief  Creates the buffers.
- *  @param  width [in] buffer width
- *  @param  height [in] buffer height
+ *  @brief  Creates the framebuffers.
+ *  @param  width [in] framebuffer width
+ *  @param  height [in] framebuffer height
  */
 /*===========================================================================*/
 void EnsembleAverageBuffer::create( const size_t width, const size_t height )
@@ -131,8 +130,6 @@ void EnsembleAverageBuffer::create( const size_t width, const size_t height )
 /*===========================================================================*/
 void EnsembleAverageBuffer::release()
 {
-    unbind();
-
     m_current_color_texture.release();
     m_current_depth_texture.release();
     m_current_framebuffer.release();

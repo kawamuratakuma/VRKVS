@@ -29,8 +29,9 @@ namespace kvs
  */
 /*===========================================================================*/
 StochasticRendererBase::StochasticRendererBase( kvs::StochasticRenderingEngine* engine ):
-    m_width( 0 ),
-    m_height( 0 ),
+    m_window_width( 0 ),
+    m_window_height( 0 ),
+    m_device_pixel_ratio( 1.0f ),
     m_repetition_level( 1 ),
     m_coarse_level( 1 ),
     m_enable_lod( false ),
@@ -80,19 +81,17 @@ void StochasticRendererBase::exec( kvs::ObjectBase* object, kvs::Camera* camera,
     startTimer();
     kvs::OpenGL::WithPushedAttrib p( GL_ALL_ATTRIB_BITS );
 
-    //std::cerr << "StochasticRendererBase::exec() : classname=" << typeid(*this).name() << std::endl;
-
     const size_t width = camera->windowWidth();
     const size_t height = camera->windowHeight();
-    const bool window_created = m_width == 0 && m_height == 0;
+    const bool window_created = m_window_width == 0 && m_window_height == 0;
     if ( window_created )
     {
+        // Set window width and height
+        m_window_width = width;
+        m_window_height = height;
+        m_device_pixel_ratio = camera->devicePixelRatio();
 
-        //std::cerr << "StochasticRendererBase::exec() : classname=" << typeid(*this).name() << " : window_created" << std::endl;
-
-        m_width = width;
-        m_height = height;
-        m_ensemble_buffer.create( width, height );
+        m_ensemble_buffer.create( this->framebufferWidth(), this->framebufferHeight() );
         m_ensemble_buffer.clear();
         m_modelview = kvs::OpenGL::ModelViewMatrix();
         m_light_position = light->position();
@@ -102,26 +101,25 @@ void StochasticRendererBase::exec( kvs::ObjectBase* object, kvs::Camera* camera,
         m_engine->create( object, camera, light );
     }
 
-    const bool window_resized = m_width != width || m_height != height;
+    const bool window_resized = m_window_width != width || m_window_height != height;
     if ( window_resized )
     {
+        // Update window size
+        m_window_width = width;
+        m_window_height = height;
 
-        //std::cerr << "StochasticRendererBase::exec() : classname=" << typeid(*this).name() << " : window_resized" << std::endl;
-
-        m_width = width;
-        m_height = height;
+        // Update ensemble buffer
         m_ensemble_buffer.release();
-        m_ensemble_buffer.create( width, height );
+        m_ensemble_buffer.create( this->framebufferWidth(), this->framebufferHeight() );
         m_ensemble_buffer.clear();
+
         m_engine->update( object, camera, light );
     }
 
     const bool object_changed = m_engine->object() != object;
-    if ( object_changed )
+    const bool replevel_changed = m_engine->repetitionLevel() != repetitionLevel();
+    if ( object_changed || replevel_changed )
     {
-
-        //std::cerr << "StochasticRendererBase::exec() : classname=" << typeid(*this).name() << " : object_changed" << std::endl;
-
         m_ensemble_buffer.clear();
         m_engine->release();
         m_engine->setShader( &shader() );
@@ -130,7 +128,11 @@ void StochasticRendererBase::exec( kvs::ObjectBase* object, kvs::Camera* camera,
     }
 
     // LOD control.
-    size_t repetitions = m_repetition_level;
+    // Martin changed
+    // This instance repetition level might have been changed by user but not yet updated to Engine
+    // This potentially causes m_engine access unallocated areas of m_vbo manager[ ]
+    //    size_t repetitions = m_repetition_level;
+    size_t repetitions = m_engine->repetitionLevel();
     kvs::Vec3 light_position = light->position();
     kvs::Mat4 modelview = kvs::OpenGL::ModelViewMatrix();
     if ( m_light_position != light_position || m_modelview != modelview )
@@ -153,15 +155,11 @@ void StochasticRendererBase::exec( kvs::ObjectBase* object, kvs::Camera* camera,
     if ( reset_count ) m_ensemble_buffer.clear();
     for ( size_t i = 0; i < repetitions; i++ )
     {
-        m_engine->preDraw( object, camera, light );
-        {
-            // Render to the ensemble buffer.
-            m_ensemble_buffer.bind();
-            m_engine->draw( object, camera, light );
-            m_engine->countRepetitions();
-            m_ensemble_buffer.unbind();
-        }
-        m_engine->postDraw( object, camera, light );
+        // Render to the ensemble buffer.
+        m_ensemble_buffer.bind();
+        m_engine->draw( object, camera, light );
+        m_engine->countRepetitions();
+        m_ensemble_buffer.unbind();
 
         // Progressive averaging.
         m_ensemble_buffer.add();

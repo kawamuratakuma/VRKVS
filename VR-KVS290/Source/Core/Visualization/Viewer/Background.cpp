@@ -184,9 +184,6 @@ void Background::apply()
     case Background::Image: this->apply_image(); break;
     default: break;
     }
-
-    //std::cerr << "Background::apply() : skip glFlush()" << std::endl;
-
     kvs::OpenGL::Flush();
 }
 

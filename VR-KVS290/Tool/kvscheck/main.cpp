@@ -1,6 +1,7 @@
-/****************************************************************************/
+/*****************************************************************************/
 /**
- *  @file main.cpp
+ *  @file   main.cpp
+ *  @author Naohisa Sakamoto
  */
 /*----------------------------------------------------------------------------
  *
@@ -8,20 +9,20 @@
  *  All rights reserved.
  *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
  *
- *  $Id: main.cpp 1433 2013-03-17 01:23:37Z naohisa.sakamoto@gmail.com $
+ *  $Id$
  */
-/****************************************************************************/
+/*****************************************************************************/
 #include <kvs/MemoryDebugger>
-#include "Argument.h"
-#include "CompilerChecker.h"
-#include "FileChecker.h"
-#include "PlatformChecker.h"
-#include "VersionChecker.h"
-#include "SizeofChecker.h"
-#include "SupportChecker.h"
-#include "MinMaxChecker.h"
-#include "OpenGLChecker.h"
-#include "ExtensionChecker.h"
+#include <kvs/CommandLine>
+#include "Compiler.h"
+#include "File.h"
+#include "Platform.h"
+#include "Version.h"
+#include "SizeOf.h"
+#include "Support.h"
+#include "MinMax.h"
+#include "OpenGL.h"
+#include "Extension.h"
 
 KVS_MEMORY_DEBUGGER;
 
@@ -37,46 +38,63 @@ int main( int argc, char** argv )
 {
     KVS_MEMORY_DEBUGGER__SET_ARGUMENT( argc, argv );
 
-    kvscheck::Argument arg( argc, argv );
-    if( !arg.parse() ) return false;
+    kvs::CommandLine cl( argc, argv );
+    cl.addHelpOption();
+    cl.addOption( "version", "Output KVS version. (optional)" );
+    cl.addOption( "platform", "Output platforma information. (optional)" );
+    cl.addOption( "compiler", "Output compiler information. (optional)" );
+    cl.addOption( "sizeof", "Output 'sizeof' information. (optional)" );
+    cl.addOption( "support", "Output supported library information. (optional)" );
+    cl.addOption( "minmax", "Output min/max information. (optional)" );
+    cl.addOption( "opengl", "Output OpenGL information. (optional)" );
+    cl.addOption( "extension", "Output OpenGL extension information. (optional)" );
+    cl.addOption( "file", "Output file information. (optional)" );
+    if ( !cl.parse() ) { return 1; }
 
-    if( arg.hasOption("version") )
+    if ( cl.hasOption("version") )
     {
-        std::cout << kvscheck::VersionChecker() << std::endl;
-    }
-    if( arg.hasOption("platform") )
-    {
-        std::cout << kvscheck::PlatformChecker() << std::endl;
-    }
-    if( arg.hasOption("compiler") )
-    {
-        std::cout << kvscheck::CompilerChecker() << std::endl;
-    }
-    if( arg.hasOption("sizeof") )
-    {
-        std::cout << kvscheck::SizeofChecker() << std::endl;
-    }
-    if( arg.hasOption("support") )
-    {
-        std::cout << kvscheck::SupportChecker() << std::endl;
-    }
-    if( arg.hasOption("minmax") )
-    {
-        std::cout << kvscheck::MinMaxChecker() << std::endl;
-    }
-    if( arg.hasOption("opengl") )
-    {
-        std::cout << kvscheck::OpenGLChecker( argc, argv ) << std::endl;
-    }
-    if( arg.hasOption("extension") )
-    {
-        std::cout << kvscheck::ExtensionChecker( argc, argv ) << std::endl;
-    }
-    if( arg.hasOption("file") )
-    {
-        const std::string filename = arg.value<std::string>();
-        std::cout << kvscheck::FileChecker( filename ) << std::endl;
+        return kvscheck::Version().start( argc, argv );
     }
 
-    return true;
+    if ( cl.hasOption("platform") )
+    {
+        return kvscheck::Platform().start( argc, argv );
+    }
+
+    if ( cl.hasOption("compiler") )
+    {
+        return kvscheck::Compiler().start( argc, argv );
+    }
+
+    if ( cl.hasOption("sizeof") )
+    {
+        return kvscheck::SizeOf().start( argc, argv );
+    }
+
+    if ( cl.hasOption("support") )
+    {
+        return kvscheck::Support().start( argc, argv );
+    }
+
+    if ( cl.hasOption("minmax") )
+    {
+        return kvscheck::MinMax().start( argc, argv );
+    }
+
+    if ( cl.hasOption("opengl") )
+    {
+        return kvscheck::OpenGL().start( argc, argv );
+    }
+
+    if ( cl.hasOption("extension") )
+    {
+        return kvscheck::Extension().start( argc, argv );
+    }
+
+    if ( cl.hasOption("file") )
+    {
+        return kvscheck::File().start( argc, argv );
+    }
+
+    return 0;
 }

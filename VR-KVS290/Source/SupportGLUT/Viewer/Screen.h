@@ -59,11 +59,7 @@ public:
     typedef kvs::glut::ScreenBase BaseClass;
     typedef kvs::Scene::ControlTarget ControlTarget;
 
-private:
-    kvs::Scene* m_scene; ///< default scene
-    kvs::glut::Timer* m_idle_mouse_timer; ///< timer for idle mouse event
-    kvs::TimerEventListener* m_idle_mouse_event_listener; ///< idle mouse event listener
-
+//private:
 protected:
     bool m_enable_default_paint_event; ///< flag for default paint event
     bool m_enable_default_resize_event; ///< flag for default resize event
@@ -72,6 +68,9 @@ protected:
     bool m_enable_default_mouse_release_event; ///< flag for default mouse release event
     bool m_enable_default_wheel_event; ///< flag for default wheel event
     bool m_enable_default_key_press_event; ///< flag for default key press event
+    kvs::Scene* m_scene; ///< default scene
+    kvs::glut::Timer* m_idle_mouse_timer; ///< timer for idle mouse event
+    kvs::TimerEventListener* m_idle_mouse_event_listener; ///< idle mouse event listener
 
 public:
     Screen( kvs::glut::Application* application = 0 );
@@ -89,8 +88,8 @@ public:
     void setControlTargetToObject();
     void setControlTargetToCamera();
     void setControlTargetToLight();
-    virtual void setEvent( kvs::EventListener* event, const std::string& name = "" );
-    virtual void addEvent( kvs::EventListener* event, const std::string& name = "" );
+    void setEvent( kvs::EventListener* event, const std::string& name = "" );
+    void addEvent( kvs::EventListener* event, const std::string& name = "" );
 
     const std::pair<int,int> registerObject( kvs::ObjectBase* object, kvs::RendererBase* renderer = 0 );
     const std::pair<int,int> registerObject( kvs::VisualizationPipeline* pipeline );
@@ -99,6 +98,7 @@ public:
     virtual void enable();
     virtual void disable();
     virtual void reset();
+    virtual kvs::ColorImage capture() const;
 
     virtual void initializeEvent();
     virtual void paintEvent();

@@ -265,10 +265,10 @@ ifeq "$(KVS_ENABLE_OPENMP)" "1"
   ifdef KVS_OPENMP_LINK_LIBRARY
     OPENMP_LINK_LIBRARY += $(KVS_OPENMP_LINK_LIBRARY)
   else
-    # For FCCpx/mpiFCCpx
+    # For Fujitsu C++ compiler (FCCpx/mpiFCCpx)
     ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),FCCpx mpiFCCpx))
       OPENMP_LINK_LIBRARY +=
-    # For Intel compiler
+    # For Intel C++ compiler (icpc/mpiicpc)
     else ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),icpc mpiicpc))
       OPENMP_LINK_LIBRARY += -liomp
     # For g++
@@ -372,9 +372,15 @@ endif
 #  OPENCV_INCLUDE_PATH, OPENCV_LIBRARY_PATH, OPENCV_LINK_LIBRARY
 #=============================================================================
 ifeq "$(KVS_SUPPORT_OPENCV)" "1"
-  OPENCV_INCLUDE_PATH := `pkg-config --cflags opencv`
-  OPENCV_LIBRARY_PATH := `pkg-config --libs-only-L opencv`
-  OPENCV_LINK_LIBRARY := `pkg-config --libs opencv`
+  ifeq "$(findstring opencv4,$(shell pkg-config --list-all))" "opencv4"
+    OPENCV_INCLUDE_PATH := `pkg-config --cflags opencv4` -std=c++11 -DKVS_OPENCV4
+    OPENCV_LIBRARY_PATH := `pkg-config --libs-only-L opencv4`
+    OPENCV_LINK_LIBRARY := `pkg-config --libs opencv4`
+  else
+    OPENCV_INCLUDE_PATH := `pkg-config --cflags opencv`
+    OPENCV_LIBRARY_PATH := `pkg-config --libs-only-L opencv`
+    OPENCV_LINK_LIBRARY := `pkg-config --libs opencv`
+  endif
   ifdef KVS_OPENCV_DIR
     OPENCV_INCLUDE_PATH := -I$(KVS_OPENCV_DIR)/include
     OPENCV_LIBRARY_PATH := -L$(KVS_OPENCV_DIR)/lib
@@ -389,6 +395,7 @@ endif
 ifeq "$(KVS_SUPPORT_PYTHON)" "1"
   PYTHON_INCLUDE_PATH := $(shell python-config --includes)
   PYTHON_LIBRARY_PATH := $(shell python-config --ldflags)
+  PYTHON_LINK_LIBRARY := $(shell python-config --libs)
   ifdef KVS_PYTHON_DIR
     PYTHON_INCLUDE_PATH := -I$(KVS_PYTHON_DIR)/include
     PYTHON_LIBRARY_PATH := -L$(KVS_PYTHON_DIR)/lib
@@ -433,8 +440,29 @@ endif
 #=============================================================================
 CPPFLAGS :=
 
-# For FCCpx/mpiFCCpx
+# For Fujitsu C++ compiler (FCCpx/mpiFCCpx)
 ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),FCCpx mpiFCCpx))
+  CPPFLAGS += -std=c++11
+  ifdef DEBUG
+    CPPFLAGS += -O0 -g
+  else
+    CPPFLAGS += -O3
+  endif
+
+# For Intel C++ compiler (icpc/mpiicpc)
+else ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),icpc mpiicpc))
+  CPPFLAGS += -std=c++11
+  CPPFLAGS += -Wall
+  ifdef DEBUG
+    CPPFLAGS += -O0 -g
+  else
+    CPPFLAGS += -O3
+  endif
+
+# For Clang compiler (clang++)
+else ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),clang++))
+  CPPFLAGS += -std=c++11
+  CPPFLAGS += -Wall
   ifdef DEBUG
     CPPFLAGS += -O0 -g
   else
@@ -443,6 +471,7 @@ ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),FCCpx mpiFCCpx))
 
 # For g++
 else
+  CPPFLAGS += -std=c++11
   CPPFLAGS += -Wall
   ifdef DEBUG
     CPPFLAGS += -O0 -ggdb3
@@ -456,10 +485,10 @@ endif
 
 # OpenMP
 ifeq "$(KVS_ENABLE_OPENMP)" "1"
-  # For FCCpx/mpiFCCpx
+  # For Fujitsu C++ compiler (FCCpx/mpiFCCpx)
   ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),FCCpx mpiFCCpx))
     CPPFLAGS += -Kopenmp
-  # For Intel compiler
+  # For Intel C++ compiler (icpc mpiicpc)
   else ifeq ($(KVS_CPP),$(findstring $(KVS_CPP),icpc mpiicpc))
     CPPFLAGS += -openmp
   # For g++

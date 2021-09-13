@@ -94,7 +94,7 @@ public:
     bool isEnabledAntiAliasing() const { return m_enable_anti_aliasing; }
 
     void setObject( const kvs::ObjectBase* object ) { m_object = object; }
-    void setSize( const size_t size ) { m_width = size; m_height = size; }
+    void setSize( const size_t size ) { BaseClass::setSize( size, size ); }
     void setXTag( const std::string& tag ) { m_x_tag = tag; }
     void setYTag( const std::string& tag ) { m_y_tag = tag; }
     void setZTag( const std::string& tag ) { m_z_tag = tag; }
@@ -107,8 +107,14 @@ public:
     void setBoxLineColor( const kvs::RGBColor& color ) { m_box_line_color = color; }
     void setBoxLineWidth( const float width ) { m_box_line_width = width; }
     void setAxisType( const AxisType type ) { m_axis_type = type; }
+    void setAxisTypeToCornered() { this->setAxisType( CorneredAxis ); }
+    void setAxisTypeToCentered() { this->setAxisType( CenteredAxis ); }
     void setBoxType( const BoxType type ) { m_box_type = type; }
+    void setBoxTypeToWired() { this->setBoxType( WiredBox ); }
+    void setBoxTypeToSolid() { this->setBoxType( SolidBox ); }
     void setProjectionType( const ProjectionType type ) { m_projection_type = type; }
+    void setProjectionTypeToPerspective() { this->setProjectionType( kvs::Camera::Perspective ); }
+    void setProjectionTypeToOrthogonal() { this->setProjectionType( kvs::Camera::Orthogonal ); }
     void setEnabledAntiAliasing( const bool enable ) { m_enable_anti_aliasing = enable; }
     void enableAntiAliasing() { this->setEnabledAntiAliasing( true ); }
     void disableAntiAliasing() { this->setEnabledAntiAliasing( false ); }

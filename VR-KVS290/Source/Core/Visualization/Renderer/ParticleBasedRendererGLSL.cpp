@@ -222,7 +222,7 @@ ParticleBasedRenderer::Engine::Engine():
     m_initial_projection( kvs::Mat4::Zero() ),
     m_initial_viewport( kvs::Vec4::Zero() ),
     m_initial_object_depth( 0 ),
-    m_vbo( NULL )
+    m_vbo_manager( NULL )
 {
 }
 
@@ -242,7 +242,7 @@ ParticleBasedRenderer::Engine::Engine( const kvs::Mat4& m, const kvs::Mat4& p, c
     m_initial_projection( p ),
     m_initial_viewport( v ),
     m_initial_object_depth( 0 ),
-    m_vbo( NULL )
+    m_vbo_manager( NULL )
 {
 }
 
@@ -253,7 +253,7 @@ ParticleBasedRenderer::Engine::Engine( const kvs::Mat4& m, const kvs::Mat4& p, c
 /*===========================================================================*/
 ParticleBasedRenderer::Engine::~Engine()
 {
-    if ( m_vbo ) delete [] m_vbo;
+    if ( m_vbo_manager ) delete [] m_vbo_manager;
 }
 
 /*===========================================================================*/
@@ -263,12 +263,16 @@ ParticleBasedRenderer::Engine::~Engine()
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::release()
 {
-    KVS_ASSERT( m_vbo );
+    KVS_ASSERT( m_vbo_manager );
 
     if ( m_shader_program.isCreated() )
     {
         m_shader_program.release();
-        for ( size_t i = 0; i < repetitionLevel(); i++ ) m_vbo[i].release();
+        for ( size_t i = 0; i < repetitionLevel(); i++ ) m_vbo_manager[i].release();
+        if (m_vbo_manager){
+            delete [] m_vbo_manager;
+            m_vbo_manager = NULL;
+        }
     }
 }
 
@@ -296,18 +300,53 @@ void ParticleBasedRenderer::Engine::create( kvs::ObjectBase* object, kvs::Camera
     if ( kvs::Math::IsZero( m_initial_modelview[3][3] ) )
     {
         m_initial_modelview = kvs::OpenGL::ModelViewMatrix();
+
+
+        std::cerr << "ParticleBasedRenderer::Engine::create(): m_initial_modelview[3][3] is zero." << std::endl;
+    } else {
+        std::cerr << "ParticleBasedRenderer::Engine::create(): m_initial_modelview[3][3] is NOT zero." << std::endl;
+
     }
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_modelview[0][0] << "  " << m_initial_modelview[0][1] << "  " << m_initial_modelview[0][2] << "  " << m_initial_modelview[0][3] << std::endl;
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_modelview[1][0] << "  " << m_initial_modelview[1][1] << "  " << m_initial_modelview[1][2] << "  " << m_initial_modelview[1][3] << std::endl;
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_modelview[2][0] << "  " << m_initial_modelview[2][1] << "  " << m_initial_modelview[2][2] << "  " << m_initial_modelview[2][3] << std::endl;
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_modelview[3][0] << "  " << m_initial_modelview[3][1] << "  " << m_initial_modelview[3][2] << "  " << m_initial_modelview[3][3] << std::endl;
+
 
     if ( kvs::Math::IsZero( m_initial_projection[3][3] ) )
     {
         m_initial_projection = kvs::OpenGL::ProjectionMatrix();
+
+
+        std::cerr << "ParticleBasedRenderer::Engine::create(): m_initial_projection[3][3] is zero." << std::endl;
+    } else {
+        std::cerr << "ParticleBasedRenderer::Engine::create(): m_initial_projection[3][3] is NOT zero." << std::endl;
+
     }
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_projection[0][0] << "  " << m_initial_projection[0][1] << "  " << m_initial_projection[0][2] << "  " << m_initial_projection[0][3] << std::endl;
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_projection[1][0] << "  " << m_initial_projection[1][1] << "  " << m_initial_projection[1][2] << "  " << m_initial_projection[1][3] << std::endl;
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_projection[2][0] << "  " << m_initial_projection[2][1] << "  " << m_initial_projection[2][2] << "  " << m_initial_projection[2][3] << std::endl;
+    std::cerr << std::showpos << std::scientific << "     " << m_initial_projection[3][0] << "  " << m_initial_projection[3][1] << "  " << m_initial_projection[3][2] << "  " << m_initial_projection[3][3] << std::endl;
+
+
 
     if ( kvs::Math::IsZero( m_initial_viewport[2] ) )
     {
-        m_initial_viewport[2] = static_cast<float>( camera->windowWidth() );
-        m_initial_viewport[3] = static_cast<float>( camera->windowHeight() );
+        const float dpr = camera->devicePixelRatio();
+        const float framebuffer_width = camera->windowWidth() * dpr;
+        const float framebuffer_height = camera->windowHeight() * dpr;
+        m_initial_viewport[2] = framebuffer_width;
+        m_initial_viewport[3] = framebuffer_height;
+
+        std::cerr << "ParticleBasedRenderer::Engine::create(): viewport[2] is zero." << std::endl;
+        std::cerr << "     dpr       = " << dpr << std::endl;
+        std::cerr << "     fb_width  = " << dpr << std::endl;
+        std::cerr << "     fb_height = " << dpr << std::endl;
+
+    } else {
+        std::cerr << "ParticleBasedRenderer::Engine::create(): viewport[2] is NOT zero." << std::endl;
     }
+    std::cerr << "     m_initial_viewport =( " << m_initial_viewport[0] << ", " << m_initial_viewport[1] << ", " << m_initial_viewport[2] << ", " << m_initial_viewport[3] << ")" << std::endl;
 
     const kvs::Vec4 I( point->objectCenter(), 1.0f );
     const kvs::Vec4 O = m_initial_projection * m_initial_modelview * I;
@@ -324,7 +363,9 @@ void ParticleBasedRenderer::Engine::create( kvs::ObjectBase* object, kvs::Camera
 /*===========================================================================*/
 void ParticleBasedRenderer::Engine::update( kvs::ObjectBase* object, kvs::Camera* camera, kvs::Light* light )
 {
-    m_initial_viewport[2] = static_cast<float>( camera->windowWidth() );
+    const float dpr = camera->devicePixelRatio();
+    const float framebuffer_width = camera->windowWidth() * dpr;
+    m_initial_viewport[2] = static_cast<float>( framebuffer_width );
 }
 
 /*===========================================================================*/
@@ -363,11 +404,18 @@ void ParticleBasedRenderer::Engine::setup( kvs::ObjectBase* object, kvs::Camera*
 void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* camera, kvs::Light* light )
 {
     kvs::PointObject* point = kvs::PointObject::DownCast( object );
-
-    kvs::VertexBufferObject::Binder bind1( m_vbo[ repetitionCount() ] );
+    KVS_ASSERT( repetitionCount()  < repetitionLevel());
+    if (repetitionCount() >= repetitionLevel()){
+        return;
+    }
+    kvs::VertexBufferObjectManager::Binder bind1( m_vbo_manager[ repetitionCount() ] );
     kvs::ProgramObject::Binder bind2( m_shader_program );
     kvs::Texture::Binder bind3( randomTexture() );
     {
+        // 20210616 add by insight
+        kvs::OpenGL::WithEnabled dd( GL_DEPTH_TEST );
+        kvs::OpenGL::WithEnabled dp( GL_VERTEX_PROGRAM_POINT_SIZE );
+
         const kvs::Mat4& m0 = m_initial_modelview;
         const float scale0 = kvs::Vec3( m0[0][0], m0[1][0], m0[2][0] ).length();
         const float width0 = m_initial_viewport[2];
@@ -375,15 +423,15 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
 
         const kvs::Mat4 m = kvs::OpenGL::ModelViewMatrix();
         const float scale = kvs::Vec3( m[0][0], m[1][0], m[2][0] ).length();
-        const float width = static_cast<float>( camera->windowWidth() );
-        const float height = static_cast<float>( camera->windowHeight() );
+        const float dpr = camera->devicePixelRatio();
+        const float width = camera->windowWidth() * dpr;
+        const float height = camera->windowHeight() * dpr;
 
         const float Cr = ( width / width0 ) * ( height / height0 );
         const float Cs = scale / scale0;
         const float D0 = m_initial_object_depth;
-        const float object_scale = Cr * Cs;
+        const float object_scale = Cr * Cs * dpr;
         const float object_depth = object_scale * D0;
-
         m_shader_program.setUniform( "object_scale", object_scale );
         m_shader_program.setUniform( "object_depth", object_depth );
         m_shader_program.setUniform( "random_texture", 0 );
@@ -394,48 +442,11 @@ void ParticleBasedRenderer::Engine::draw( kvs::ObjectBase* object, kvs::Camera* 
         const size_t rem = nvertices % repetitionLevel();
         const size_t quo = nvertices / repetitionLevel();
         const size_t count = quo + ( repetitionCount() < rem ? 1 : 0 );
-        const size_t coord_size = count * sizeof(kvs::Real32) * 3;
-        const size_t color_size = count * sizeof(kvs::UInt8) * 3;
-
-        // Enable coords.
-        KVS_GL_CALL( glEnableClientState( GL_VERTEX_ARRAY ) );
-        KVS_GL_CALL( glVertexPointer( 3, GL_FLOAT, 0, (GLbyte*)NULL + 0 ) );
-
-        // Enable colors.
-        KVS_GL_CALL( glEnableClientState( GL_COLOR_ARRAY ) );
-        KVS_GL_CALL( glColorPointer( 3, GL_UNSIGNED_BYTE, 0, (GLbyte*)NULL + coord_size ) );
-
-        // Enable normals.
-        if ( m_has_normal )
-        {
-            KVS_GL_CALL( glEnableClientState( GL_NORMAL_ARRAY ) );
-            KVS_GL_CALL( glNormalPointer( GL_FLOAT, 0, (GLbyte*)NULL + coord_size + color_size ) );
-        }
-
-        // Enable random index.
-        KVS_GL_CALL( glEnableVertexAttribArray( m_random_index ) );
-        KVS_GL_CALL( glVertexAttribPointer( m_random_index, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, (GLubyte*)NULL + 0 ) );
-
-        // Draw.
-        KVS_GL_CALL( glDrawArrays( GL_POINTS, 0, count ) );
-
-        // Disable coords.
-        KVS_GL_CALL( glDisableClientState( GL_VERTEX_ARRAY ) );
-
-        // Disable colors.
-        KVS_GL_CALL( glDisableClientState( GL_COLOR_ARRAY ) );
-
-        // Disable normals.
-        if ( m_has_normal )
-        {
-            KVS_GL_CALL( glDisableClientState( GL_NORMAL_ARRAY ) );
-        }
-
-        // Disable random index.
-        KVS_GL_CALL( glDisableVertexAttribArray( m_random_index ) );
+        kvs::OpenGL::EnableVertexAttribArray( m_random_index );
+        kvs::OpenGL::VertexAttribPointer( m_random_index, 2, GL_UNSIGNED_SHORT, GL_FALSE, 0, (GLubyte*)NULL + 0 );
+        m_vbo_manager[ repetitionCount() ].drawArrays( GL_POINTS, 0, count );
+        kvs::OpenGL::DisableVertexAttribArray( m_random_index );
     }
-
-//    countRepetitions();
 }
 
 /*===========================================================================*/
@@ -497,35 +508,53 @@ void ParticleBasedRenderer::Engine::create_buffer_object( const kvs::PointObject
         kvs::UInt32 seed = 12345678;
         coords = ::ShuffleArray<3>( point->coords(), seed );
         colors = ::ShuffleArray<3>( point->colors(), seed );
-        if ( m_has_normal )
-        {
-            normals = ::ShuffleArray<3>( point->normals(), seed );
-        }
+        if ( m_has_normal ) { normals = ::ShuffleArray<3>( point->normals(), seed ); }
     }
 
-    if ( !m_vbo ) m_vbo = new kvs::VertexBufferObject [ repetitionLevel() ];
+    if ( !m_vbo_manager ) m_vbo_manager = new kvs::VertexBufferObjectManager [ repetitionLevel() ];
 
     const size_t nvertices = point->numberOfVertices();
     const size_t rem = nvertices % repetitionLevel();
     const size_t quo = nvertices / repetitionLevel();
+
+    std::cerr << "ParticleBasedRenderer::Engine::create_buffer_object():" << std::endl;
+    std::cerr << "     repeat_level = " << repetitionLevel() << std::endl;
+    std::cerr << "           nverts = " << nvertices << std::endl;
+    std::cerr << "              rem = " << rem << std::endl;
+    std::cerr << "              quo = " << quo << std::endl;
+    std::cerr << "     m_has_normal = " << m_has_normal << std::endl;
+
+
     for ( size_t i = 0; i < repetitionLevel(); i++ )
     {
         const size_t count = quo + ( i < rem ? 1 : 0 );
         const size_t first = quo * i + kvs::Math::Min( i, rem );
-        const size_t coord_size = count * sizeof(kvs::Real32) * 3;
-        const size_t color_size = count * sizeof(kvs::UInt8) * 3;
-        const size_t normal_size = m_has_normal ? count * sizeof(kvs::Real32) * 3 : 0;
-        const size_t byte_size = coord_size + color_size + normal_size;
-        m_vbo[i].create( byte_size );
 
-        m_vbo[i].bind();
-        m_vbo[i].load( coord_size, coords.data() + first * 3, 0 );
-        m_vbo[i].load( color_size, colors.data() + first * 3, coord_size );
+        kvs::VertexBufferObjectManager::VertexBuffer vertex_array;
+        vertex_array.type = GL_FLOAT;
+        vertex_array.size = count * sizeof( kvs::Real32 ) * 3;;
+        vertex_array.dim = 3;
+        vertex_array.pointer = coords.data() + first * 3;
+        m_vbo_manager[i].setVertexArray( vertex_array );
+
+        kvs::VertexBufferObjectManager::VertexBuffer color_array;
+        color_array.type = GL_UNSIGNED_BYTE;
+        color_array.size = count * sizeof( kvs::UInt8 ) * 3;
+        color_array.dim = 3;
+        color_array.pointer = colors.data() + first * 3;
+        m_vbo_manager[i].setColorArray( color_array );
+
         if ( m_has_normal )
         {
-            m_vbo[i].load( normal_size, normals.data() + first * 3, coord_size + color_size );
+            kvs::VertexBufferObjectManager::VertexBuffer normal_array;
+            normal_array.type = GL_FLOAT;
+            normal_array.size = count * sizeof( kvs::Real32 ) * 3;
+            normal_array.dim = 3;
+            normal_array.pointer = normals.data() + first * 3;
+            m_vbo_manager[i].setNormalArray( normal_array );
         }
-        m_vbo[i].unbind();
+
+        m_vbo_manager[i].create();
     }
 }
 

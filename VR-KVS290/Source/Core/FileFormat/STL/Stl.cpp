@@ -142,7 +142,7 @@ bool Stl::read( const std::string& filename )
     BaseClass::setFilename( filename );
     BaseClass::setSuccess( true );
 
-    FILE* ifs = fopen( filename.c_str(), "r" );
+    FILE* ifs = fopen( filename.c_str(), "rb" );
     if ( !ifs )
     {
         kvsMessageError( "Cannot open %s.", filename.c_str() );

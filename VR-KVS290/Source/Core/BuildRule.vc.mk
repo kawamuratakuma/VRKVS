@@ -61,6 +61,9 @@ $(OUTDIR)\.\FileFormat\GrADS\Vars.obj \
 $(OUTDIR)\.\FileFormat\GrADS\XYZDef.obj \
 $(OUTDIR)\.\FileFormat\IPLab\IPLab.obj \
 $(OUTDIR)\.\FileFormat\IPLab\IPLabList.obj \
+$(OUTDIR)\.\FileFormat\JSON\Array.obj \
+$(OUTDIR)\.\FileFormat\JSON\Json.obj \
+$(OUTDIR)\.\FileFormat\JSON\Object.obj \
 $(OUTDIR)\.\FileFormat\KVSML\CellTag.obj \
 $(OUTDIR)\.\FileFormat\KVSML\ColorMapTag.obj \
 $(OUTDIR)\.\FileFormat\KVSML\ColorTag.obj \
@@ -121,6 +124,7 @@ $(OUTDIR)\.\FileFormat\XML\XMLElement.obj \
 $(OUTDIR)\.\FileFormat\XML\XMLNode.obj \
 $(OUTDIR)\.\Image\BitImage.obj \
 $(OUTDIR)\.\Image\ColorImage.obj \
+$(OUTDIR)\.\Image\CubicImage.obj \
 $(OUTDIR)\.\Image\GrayImage.obj \
 $(OUTDIR)\.\Image\HCLColor.obj \
 $(OUTDIR)\.\Image\HSVColor.obj \
@@ -129,6 +133,7 @@ $(OUTDIR)\.\Image\LabColor.obj \
 $(OUTDIR)\.\Image\MshColor.obj \
 $(OUTDIR)\.\Image\RGBAColor.obj \
 $(OUTDIR)\.\Image\RGBColor.obj \
+$(OUTDIR)\.\Image\SphericalImage.obj \
 $(OUTDIR)\.\Image\XYZColor.obj \
 $(OUTDIR)\.\Matrix\FrustumMatrix44.obj \
 $(OUTDIR)\.\Matrix\LookAtMatrix44.obj \
@@ -164,19 +169,29 @@ $(OUTDIR)\.\Network\TCPServer.obj \
 $(OUTDIR)\.\Network\TCPSocket.obj \
 $(OUTDIR)\.\Network\Url.obj \
 $(OUTDIR)\.\Numeric\AdaptiveKMeans.obj \
+$(OUTDIR)\.\Numeric\BetaFunction.obj \
+$(OUTDIR)\.\Numeric\ChiSquaredDistribution.obj \
 $(OUTDIR)\.\Numeric\EigenDecomposer.obj \
+$(OUTDIR)\.\Numeric\ExponentialDistribution.obj \
 $(OUTDIR)\.\Numeric\FastKMeans.obj \
+$(OUTDIR)\.\Numeric\FisherFDistribution.obj \
+$(OUTDIR)\.\Numeric\GammaFunction.obj \
+$(OUTDIR)\.\Numeric\GaussDistribution.obj \
 $(OUTDIR)\.\Numeric\GaussEliminationSolver.obj \
 $(OUTDIR)\.\Numeric\KMeans.obj \
 $(OUTDIR)\.\Numeric\LUDecomposer.obj \
 $(OUTDIR)\.\Numeric\LUSolver.obj \
+$(OUTDIR)\.\Numeric\LassoRegression.obj \
+$(OUTDIR)\.\Numeric\LinearRegression.obj \
 $(OUTDIR)\.\Numeric\MersenneTwister.obj \
 $(OUTDIR)\.\Numeric\QRDecomposer.obj \
 $(OUTDIR)\.\Numeric\QRSolver.obj \
 $(OUTDIR)\.\Numeric\Quaternion.obj \
 $(OUTDIR)\.\Numeric\ResponseSurface.obj \
+$(OUTDIR)\.\Numeric\RidgeRegression.obj \
 $(OUTDIR)\.\Numeric\SVDecomposer.obj \
 $(OUTDIR)\.\Numeric\SVSolver.obj \
+$(OUTDIR)\.\Numeric\StudentTDistribution.obj \
 $(OUTDIR)\.\Numeric\Xorshift128.obj \
 $(OUTDIR)\.\OpenGL\BufferObject.obj \
 $(OUTDIR)\.\OpenGL\DisplayList.obj \
@@ -269,6 +284,8 @@ $(OUTDIR)\.\Visualization\Exporter\UnstructuredVolumeExporter.obj \
 $(OUTDIR)\.\Visualization\Filter\InverseDistanceWeighting.obj \
 $(OUTDIR)\.\Visualization\Filter\KMeansClustering.obj \
 $(OUTDIR)\.\Visualization\Filter\LineIntegralConvolution.obj \
+$(OUTDIR)\.\Visualization\Filter\PolygonToPolygon.obj \
+$(OUTDIR)\.\Visualization\Filter\StructuredExtractScalar.obj \
 $(OUTDIR)\.\Visualization\Filter\StructuredVectorToScalar.obj \
 $(OUTDIR)\.\Visualization\Filter\TetrahedraToTetrahedra.obj \
 $(OUTDIR)\.\Visualization\Filter\Tubeline.obj \
@@ -378,6 +395,7 @@ $(OUTDIR)\.\Visualization\Renderer\ScatterPlotRenderer.obj \
 $(OUTDIR)\.\Visualization\Renderer\Shader.obj \
 $(OUTDIR)\.\Visualization\Renderer\ShadingParameter.obj \
 $(OUTDIR)\.\Visualization\Renderer\SphereGlyph.obj \
+$(OUTDIR)\.\Visualization\Renderer\SphericalImageRenderer.obj \
 $(OUTDIR)\.\Visualization\Renderer\StochasticLineRenderer.obj \
 $(OUTDIR)\.\Visualization\Renderer\StochasticMultipleTetrahedraCompositor.obj \
 $(OUTDIR)\.\Visualization\Renderer\StochasticMultipleTetrahedraRenderer.obj \
@@ -592,6 +610,12 @@ $<
 $<
 <<
 
+{.\FileFormat\JSON\}.cpp{$(OUTDIR)\.\FileFormat\JSON\}.obj::
+	IF NOT EXIST $(OUTDIR)\.\FileFormat\JSON $(MKDIR) $(OUTDIR)\.\FileFormat\JSON
+	$(CPP) /c $(CPPFLAGS) $(DEFINITIONS) $(INCLUDE_PATH) /Fo$(OUTDIR)\.\FileFormat\JSON\ @<<
+$<
+<<
+
 {.\FileFormat\IPLab\}.cpp{$(OUTDIR)\.\FileFormat\IPLab\}.obj::
 	IF NOT EXIST $(OUTDIR)\.\FileFormat\IPLab $(MKDIR) $(OUTDIR)\.\FileFormat\IPLab
 	$(CPP) /c $(CPPFLAGS) $(DEFINITIONS) $(INCLUDE_PATH) /Fo$(OUTDIR)\.\FileFormat\IPLab\ @<<
@@ -692,6 +716,8 @@ install::
 	$(INSTALL) .\FileFormat\GrADS\*.h $(INSTALL_DIR)\include\Core\.\FileFormat\GrADS
 	IF NOT EXIST $(INSTALL_DIR)\include\Core\.\FileFormat\IPLab $(MKDIR) $(INSTALL_DIR)\include\Core\.\FileFormat\IPLab
 	$(INSTALL) .\FileFormat\IPLab\*.h $(INSTALL_DIR)\include\Core\.\FileFormat\IPLab
+	IF NOT EXIST $(INSTALL_DIR)\include\Core\.\FileFormat\JSON $(MKDIR) $(INSTALL_DIR)\include\Core\.\FileFormat\JSON
+	$(INSTALL) .\FileFormat\JSON\*.h $(INSTALL_DIR)\include\Core\.\FileFormat\JSON
 	IF NOT EXIST $(INSTALL_DIR)\include\Core\.\FileFormat\KVSML $(MKDIR) $(INSTALL_DIR)\include\Core\.\FileFormat\KVSML
 	$(INSTALL) .\FileFormat\KVSML\*.h $(INSTALL_DIR)\include\Core\.\FileFormat\KVSML
 	IF NOT EXIST $(INSTALL_DIR)\include\Core\.\FileFormat\PLY $(MKDIR) $(INSTALL_DIR)\include\Core\.\FileFormat\PLY

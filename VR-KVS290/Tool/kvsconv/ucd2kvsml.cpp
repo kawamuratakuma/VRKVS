@@ -1,6 +1,7 @@
 /*****************************************************************************/
 /**
  *  @file   ucd2kvsml.cpp
+ *  @author Naohisa Sakamoto
  */
 /*----------------------------------------------------------------------------
  *
@@ -8,7 +9,7 @@
  *  All rights reserved.
  *  See http://www.viz.media.kyoto-u.ac.jp/kvs/copyright/ for details.
  *
- *  $Id: ucd2kvsml.cpp 1191 2012-06-12 01:31:49Z naohisa.sakamoto $
+ *  $Id$
  */
 /*****************************************************************************/
 #include "ucd2kvsml.h"
@@ -113,7 +114,7 @@ bool Main::exec()
     m_output_name = arg.outputFilename( m_input_name );
 
     kvs::File file( m_input_name );
-    if ( !file.isExisted() )
+    if ( !file.exists() )
     {
         kvsMessageError("Input data file '%s' is not existed.",m_input_name.c_str());
         return false;

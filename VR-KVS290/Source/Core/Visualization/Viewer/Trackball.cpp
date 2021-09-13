@@ -55,7 +55,7 @@ void Trackball::scale( const kvs::Vec2i& start, const kvs::Vec2i& end )
     const float h = static_cast<float>( m_ref_camera->windowHeight() );
     const float s = 1.0f + m_scaling_factor * ( n_old.y() - n_new.y() ) / h;
 
-    m_scaling = kvs::Vec3::All( s );
+    m_scaling = kvs::Vec3::Constant( s );
 }
 
 /*==========================================================================*/
@@ -101,21 +101,7 @@ void Trackball::rotate( const kvs::Vec2i& start, const kvs::Vec2i& end )
     const kvs::Vec3 p1w = m_ref_camera->xform().transformNormal( p1 );
     const kvs::Vec3 p2w = m_ref_camera->xform().transformNormal( p2 );
 
-    std::cerr << "rotate(): m_rotation_center=(" << m_rotation_center << ")" << std::endl;
-    std::cerr << "  start=(" << start << ")" << std::endl;
-    std::cerr << "    end=(" << end << ")" << std::endl;
-    std::cerr << "  n_old=(" << n_old << ")" << std::endl;
-    std::cerr << "  n_new=(" << n_new << ")" << std::endl;
-    std::cerr << "     p1=(" << p1 << ")" << std::endl;
-    std::cerr << "     p2=(" << p2 << ")" << std::endl;
-    std::cerr << "    p1w=(" << p1w << ")" << std::endl;
-    std::cerr << "    p2w=(" << p2w << ")" << std::endl;
-
-
     m_rotation = kvs::Quaternion::RotationQuaternion( p1w, p2w );
-
-    std::cerr << "      q=(" << m_rotation << ")" << std::endl;
-
 }
 
 /*==========================================================================*/
