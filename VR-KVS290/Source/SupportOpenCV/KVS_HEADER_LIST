@@ -1,8 +1,0 @@
-Object/MovieObject
-Object/VideoObject
-OpenCV
-Renderer/MovieRenderer
-Renderer/SphericalMovieRenderer
-Renderer/VideoRenderer
-Viewer/CaptureDevice
-Viewer/Window
